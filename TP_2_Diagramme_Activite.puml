@@ -1,0 +1,37 @@
+@startuml
+title TP 2 - Déroulement d'un TD\nDiagramme d'activités
+skinparam shadowing false
+
+|Responsable TD|
+start
+:Consulter le calendrier;
+:Préparer la séance;
+
+|Étudiant|
+:Arriver à la salle;
+
+|Enseignant / Responsable|
+:Vérifier la salle et le groupe;
+:Faire l'appel;
+
+|Responsable TD|
+:Enregistrer les présences et absences;
+
+|Enseignant|
+:Présenter le thème du TD;
+:Expliquer les exercices;
+:Encadrer les étudiants;
+:Corriger les exercices;
+
+|Étudiant|
+:Participer et poser des questions;
+:Effectuer les exercices;
+
+|Enseignant|
+:Répondre aux questions;
+:Clôturer la séance;
+
+|Responsable TD|
+:Enregistrer le bilan de présence;
+stop
+@enduml

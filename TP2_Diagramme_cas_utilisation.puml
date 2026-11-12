@@ -1,0 +1,42 @@
+@startuml
+title TP 2 - Plateforme de gestion des travaux dirigés (TD)\nDiagramme de cas d'utilisation
+left to right direction
+skinparam shadowing false
+
+actor "Administrateur" as Admin
+actor "Étudiant" as Etu
+actor "Enseignant" as Ens
+actor "Responsable TD" as Resp
+
+rectangle "Plateforme de gestion des TD" {
+  usecase "Enregistrer une matière" as UC1
+  usecase "Créer un groupe de TD" as UC2
+  usecase "Affecter un étudiant\nà un groupe" as UC3
+  usecase "Programmer une séance" as UC4
+  usecase "Affecter un enseignant\nou responsable" as UC5
+  usecase "Affecter une salle" as UC6
+  usecase "Enregistrer les présences\net les absences" as UC7
+  usecase "Consulter le calendrier\n des TD" as UC8
+  usecase "Produire le bilan\ndes présences" as UC9
+  usecase "Générer automatiquement\nun emploi du temps" as UC10
+  usecase "Vérifier les conflits\nde salle et de responsable" as UC11
+}
+
+Admin --> UC1
+Admin --> UC2
+Admin --> UC3
+Admin --> UC4
+Admin --> UC10
+Resp --> UC3
+Resp --> UC4
+Resp --> UC5
+Resp --> UC6
+Resp --> UC7
+Resp --> UC9
+Ens --> UC8
+Ens --> UC7
+Etu --> UC8
+UC4 .> UC5 : <<include>>
+UC4 .> UC6 : <<include>>
+UC10 .> UC11 : <<include>>
+@enduml

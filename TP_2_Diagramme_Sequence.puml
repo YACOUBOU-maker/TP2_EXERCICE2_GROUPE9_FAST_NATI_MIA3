@@ -1,0 +1,33 @@
+@startuml
+title TP 2 - Programmation d'une séance de TD\nDiagramme de séquence
+skinparam shadowing false
+
+actor "Responsable TD" as Resp
+boundary "Interface" as I
+control "GestionSeance" as G
+database "Base de données" as BD
+entity "Salle" as S
+entity "Enseignant" as E
+
+Resp -> I : saisir les informations\n(date, heures, groupe, matière)
+I -> G : demanderProgrammation(données)
+G -> BD : vérifierGroupeEtMatiere()
+BD --> G : données valides
+
+G -> S : vérifierDisponibilité(salle, date, heures)
+S --> G : disponibilité
+
+G -> E : vérifierDisponibilité(responsable, date, heures)
+E --> G : disponibilité
+
+alt Salle et responsable disponibles
+  G -> BD : enregistrerSéance(données)
+  BD --> G : séance créée(id)
+  G --> I : confirmation
+  I --> Resp : afficher la confirmation
+else Conflit de salle ou de responsable
+  G --> I : signalerConflit()
+  I --> Resp : afficher le conflit\net demander une autre programmation
+end
+@enduml
+

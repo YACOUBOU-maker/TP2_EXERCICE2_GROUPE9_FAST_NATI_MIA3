@@ -1,0 +1,198 @@
+@startuml
+title TP 2 - Plateforme de gestion des travaux dirigés (TD)\nDiagramme de cas d'utilisation
+left to right direction
+skinparam shadowing false
+
+actor "Administrateur" as Admin
+actor "Étudiant" as Etu
+actor "Enseignant" as Ens
+actor "Responsable TD" as Resp
+
+rectangle "Plateforme de gestion des TD" {
+  usecase "Enregistrer une matière" as UC1
+  usecase "Créer un groupe de TD" as UC2
+  usecase "Affecter un étudiant\nà un groupe" as UC3
+  usecase "Programmer une séance" as UC4
+  usecase "Affecter un enseignant\nou responsable" as UC5
+  usecase "Affecter une salle" as UC6
+  usecase "Enregistrer les présences\net les absences" as UC7
+  usecase "Consulter le calendrier\n des TD" as UC8
+  usecase "Produire le bilan\ndes présences" as UC9
+  usecase "Générer automatiquement\nun emploi du temps" as UC10
+  usecase "Vérifier les conflits\nde salle et de responsable" as UC11
+}
+
+Admin --> UC1
+Admin --> UC2
+Admin --> UC3
+Admin --> UC4
+Admin --> UC10
+Resp --> UC3
+Resp --> UC4
+Resp --> UC5
+Resp --> UC6
+Resp --> UC7
+Resp --> UC9
+Ens --> UC8
+Ens --> UC7
+Etu --> UC8
+UC4 .> UC5 : <<include>>
+UC4 .> UC6 : <<include>>
+UC10 .> UC11 : <<include>>
+@enduml
+
+@startuml
+title TP 2 - Plateforme de gestion des TD\nDiagramme de classes
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+class Etudiant {
+  -idEtudiant : int
+  -nom : String
+  -prenom : String
+  -matricule : String
+  +consulterCalendrier() : void
+}
+
+class Matiere {
+  -idMatiere : int
+  -libelle : String
+  -code : String
+}
+
+class GroupeTD {
+  -idGroupe : int
+  -nom : String
+  -niveau : String
+  +ajouterEtudiant(e : Etudiant) : void
+  +retirerEtudiant(e : Etudiant) : void
+}
+
+class SeanceTD {
+  -idSeance : int
+  -date : Date
+  -heureDebut : Time
+  -heureFin : Time
+  -theme : String
+  +programmer() : void
+  +annuler() : void
+}
+
+class Enseignant {
+  -idEnseignant : int
+  -nom : String
+  -prenom : String
+  -specialite : String
+}
+
+class Salle {
+  -idSalle : int
+  -nom : String
+  -capacite : int
+}
+
+class Presence {
+  -idPresence : int
+  -statut : StatutPresence
+  -dateEnregistrement : Date
+  +enregistrer() : void
+}
+
+enum StatutPresence {
+  PRESENT
+  ABSENT
+  RETARD
+}
+
+Matiere "1" -- "0..*" GroupeTD : concerne
+GroupeTD "1" -- "0..*" Etudiant : contient
+GroupeTD "1" -- "0..*" SeanceTD : possède
+Matiere "1" -- "0..*" SeanceTD : porte sur
+Enseignant "1" -- "0..*" SeanceTD : encadre
+Salle "1" -- "0..*" SeanceTD : accueille
+SeanceTD "1" -- "0..*" Presence : enregistre
+Etudiant "1" -- "0..*" Presence : possède
+
+note right of SeanceTD
+  Une séance est programmée avec
+  une seule salle et un seul responsable.
+  Les horaires ne doivent pas se chevaucher
+  pour une même salle ou un même responsable.
+end note
+
+note bottom of Presence
+  Une présence concerne un étudiant
+  inscrit dans le groupe de la séance.
+end note
+@enduml
+
+@startuml
+title TP 2 - Programmation d'une séance de TD\nDiagramme de séquence
+skinparam shadowing false
+
+actor "Responsable TD" as Resp
+boundary "Interface" as I
+control "GestionSeance" as G
+database "Base de données" as BD
+entity "Salle" as S
+entity "Enseignant" as E
+
+Resp -> I : saisir les informations\n(date, heures, groupe, matière)
+I -> G : demanderProgrammation(données)
+G -> BD : vérifierGroupeEtMatiere()
+BD --> G : données valides
+
+G -> S : vérifierDisponibilité(salle, date, heures)
+S --> G : disponibilité
+
+G -> E : vérifierDisponibilité(responsable, date, heures)
+E --> G : disponibilité
+
+alt Salle et responsable disponibles
+  G -> BD : enregistrerSéance(données)
+  BD --> G : séance créée(id)
+  G --> I : confirmation
+  I --> Resp : afficher la confirmation
+else Conflit de salle ou de responsable
+  G --> I : signalerConflit()
+  I --> Resp : afficher le conflit\net demander une autre programmation
+end
+@enduml
+
+@startuml
+title TP 2 - Déroulement d'un TD\nDiagramme d'activités
+skinparam shadowing false
+
+|Responsable TD|
+start
+:Consulter le calendrier;
+:Préparer la séance;
+
+|Étudiant|
+:Arriver à la salle;
+
+|Enseignant / Responsable|
+:Vérifier la salle et le groupe;
+:Faire l'appel;
+
+|Responsable TD|
+:Enregistrer les présences et absences;
+
+|Enseignant|
+:Présenter le thème du TD;
+:Expliquer les exercices;
+:Encadrer les étudiants;
+:Corriger les exercices;
+
+|Étudiant|
+:Participer et poser des questions;
+:Effectuer les exercices;
+
+|Enseignant|
+:Répondre aux questions;
+:Clôturer la séance;
+
+|Responsable TD|
+:Enregistrer le bilan de présence;
+stop
+@enduml
